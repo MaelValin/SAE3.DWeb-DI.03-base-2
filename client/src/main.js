@@ -3,7 +3,6 @@ import { Candidats } from "./data/data-candidats.js";
 import { Lycees } from "./data/data-lycees.js";
 
 
-
 let C = {};
 
 C.init = async function(){
@@ -21,6 +20,7 @@ let V = {
 
 V.init = function(){
     V.renderHeader();
+    V.renderLycees();
 }
 
 V.renderHeader= function(){
@@ -76,6 +76,15 @@ polygon.bindPopup("I am a polygon.");*/
 }
 
 map.on('click', onMapClick);*/
+
+//je veux afficher les lycees sur la carte
+ V.renderLycees = function(){
+    Lycees.getAll().slice(1).forEach(lycee => {
+       
+        L.marker([lycee.latitude, lycee.longitude]).addTo(map).bindPopup(lycee.appellation_officielle);
+    });
+    
+}
 
 
 
