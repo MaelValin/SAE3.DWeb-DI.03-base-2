@@ -78,13 +78,24 @@ polygon.bindPopup("I am a polygon.");*/
 map.on('click', onMapClick);*/
 
 //je veux afficher les lycees sur la carte
- V.renderLycees = function(){
-    Lycees.getAll().slice(1).forEach(lycee => {
-       
-        L.marker([lycee.latitude, lycee.longitude]).addTo(map).bindPopup(lycee.appellation_officielle);
+V.renderLycees = function() {
+    Lycees.getAll().forEach(lycee => {
+        // Vérifie si un candidat est lié à ce lycée pour l'année scolaire 0
+        const hasCandidat = Candidats.getAll().some(candidat => 
+            candidat.Scolarite.some(scolarite => 
+                scolarite.UAIEtablissementorigine === lycee.numero_uai && scolarite.AnneeScolaireCode === 0
+            )
+        );
+
+        if (hasCandidat) {
+            // Ajoute un marqueur sur la carte pour ce lycée
+            L.marker([parseFloat(lycee.latitude), parseFloat(lycee.longitude)])
+                .addTo(map)
+                .bindPopup(lycee.appellation_officielle);
+        }
     });
-    
-}
+};
+
 
 
 
