@@ -34,14 +34,14 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 //methode a utiliser
 
-var marker = L.marker([45.83,1.26]).addTo(map);
+/*var marker = L.marker([45.83,1.26]).addTo(map);
 
 var circle = L.circle([45.83,1.26], {
     color: 'red',
     fillColor: '#f03',
     fillOpacity: 0.5,
     radius: 500
-}).addTo(map);
+}).addTo(map);*/
 
 
 /*var polygon = L.polygon([
