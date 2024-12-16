@@ -88,10 +88,18 @@ V.renderLycees = function() {
         );
 
         if (hasCandidat) {
-            // Ajoute un marqueur sur la carte pour ce lycée
+            // Ajoute un marqueur sur la carte pour ce lycée ainsi que le nombre de candidatures de se lycée
+
+           
+            const candidatCount = Candidats.getAll().filter(candidat => 
+                candidat.Scolarite.some(scolarite => 
+                    scolarite.UAIEtablissementorigine === lycee.numero_uai && scolarite.AnneeScolaireCode === 0
+                )
+            ).length;
+
             L.marker([parseFloat(lycee.latitude), parseFloat(lycee.longitude)])
                 .addTo(map)
-                .bindPopup(lycee.appellation_officielle);
+                .bindPopup(`${lycee.appellation_officielle}<br>Nombre de candidatures: ${candidatCount}`);
         }
     });
 };
