@@ -79,6 +79,8 @@ map.on('click', onMapClick);*/
 
 //je veux afficher les lycees sur la carte
 V.renderLycees = function() {
+    var markers = L.markerClusterGroup();
+
     Lycees.getAll().forEach(lycee => {
         // Vérifie si un candidat est lié à ce lycée pour l'année scolaire 0
         const hasCandidat = Candidats.getAll().some(candidat => 
@@ -89,19 +91,20 @@ V.renderLycees = function() {
 
         if (hasCandidat) {
             // Ajoute un marqueur sur la carte pour ce lycée ainsi que le nombre de candidatures de se lycée
-
-           
             const candidatCount = Candidats.getAll().filter(candidat => 
                 candidat.Scolarite.some(scolarite => 
                     scolarite.UAIEtablissementorigine === lycee.numero_uai && scolarite.AnneeScolaireCode === 0
                 )
             ).length;
 
-            L.marker([parseFloat(lycee.latitude), parseFloat(lycee.longitude)])
-                .addTo(map)
+            var marker = L.marker([parseFloat(lycee.latitude), parseFloat(lycee.longitude)])
                 .bindPopup(`${lycee.appellation_officielle}<br>Nombre de candidatures: ${candidatCount}`);
+            
+            markers.addLayer(marker);
         }
     });
+
+    map.addLayer(markers);
 };
 
 
