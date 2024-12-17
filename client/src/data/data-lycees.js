@@ -30,4 +30,9 @@ Lycees.binarysearch = function(numero_uai){
     return null;
 }
 
+
+Lycees.getAllValid = function() {
+    return data.filter(lycee => lycee.latitude !== '' && lycee.longitude !== '');
+}
+
 export { Lycees };
