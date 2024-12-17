@@ -101,21 +101,38 @@ V.renderLycees = function() {
         }
     });
 
+    const getCandidatureDetails = (lycee) => {
+        const candidatures = Candidats.getPremiereCandidatureAvecUAI().filter(candidat => 
+            candidat.UAIEtablissementorigine === lycee.numero_uai
+        );
+        
+        const details = {
+            total: candidatures.length,
+            generale: candidatures.filter(c => c.diplome=== 'Générale').length,
+            sti2d: candidatures.filter(c => c.diplome=== 'STI2D').length,
+            autre: candidatures.filter(c => c.diplome!== 'Générale' && c.diplome!== 'STI2D').length
+        };
+       
+
+        return details;
+    };
+
     if (zoomLevel >= 12) {
         // Marqueurs individuels par lycée
         Lycees.getAllValid().forEach(lycee => {
             const latitude = parseFloat(lycee.latitude);
             const longitude = parseFloat(lycee.longitude);
 
-            const candidatCount = Candidats.getPremiereCandidatureAvecUAI().filter(candidat => 
-                candidat.UAIEtablissementorigine === lycee.numero_uai
-            ).length;
+            const details = getCandidatureDetails(lycee);
 
-            if (candidatCount > 0) {
-                const marker = L.marker([latitude, longitude], { candidatCount })
+            if (details.total > 0) {
+                const marker = L.marker([latitude, longitude], { candidatCount: details.total })
                     .bindPopup(
                         `<b>${lycee.appellation_officielle}</b><br>` +
-                        `Nombre de candidatures: ${candidatCount}`
+                        `Nombre de candidatures: ${details.total}<br>` +
+                        `Générale: ${details.generale}<br>` +
+                        `STI2D: ${details.sti2d}<br>` +
+                        `Autre: ${details.autre}`
                     );
                 map.addLayer(marker);
             }
@@ -130,24 +147,28 @@ V.renderLycees = function() {
             const ville = lycee.libelle_commune;
 
             if (!villes[ville]) {
-                villes[ville] = { latitude, longitude, count: 0 };
+                villes[ville] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
             }
 
-            const candidatCount = Candidats.getPremiereCandidatureAvecUAI().filter(candidat => 
-                candidat.UAIEtablissementorigine === lycee.numero_uai
-            ).length;
+            const details = getCandidatureDetails(lycee);
 
-            villes[ville].count += candidatCount;
+            villes[ville].details.total += details.total;
+            villes[ville].details.generale += details.generale;
+            villes[ville].details.sti2d += details.sti2d;
+            villes[ville].details.autre += details.autre;
         });
 
         // Ajouter les clusters par ville
         Object.keys(villes).forEach(ville => {
             const data = villes[ville];
-            if (data.count > 0) {
-                const marker = L.marker([data.latitude, data.longitude], { candidatCount: data.count })
+            if (data.details.total > 0) {
+                const marker = L.marker([data.latitude, data.longitude], { candidatCount: data.details.total })
                     .bindPopup(
                         `<b>${ville}</b><br>` +
-                        `Nombre de candidatures: ${data.count}`
+                        `Nombre de candidatures: ${data.details.total}<br>` +
+                        `Générale: ${data.details.generale}<br>` +
+                        `STI2D: ${data.details.sti2d}<br>` +
+                        `Autre: ${data.details.autre}`
                     );
                 markerCluster.addLayer(marker);
             }
@@ -162,24 +183,28 @@ V.renderLycees = function() {
             const region = lycee.libelle_departement;
 
             if (!regions[region]) {
-                regions[region] = { latitude, longitude, count: 0 };
+                regions[region] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
             }
 
-            const candidatCount = Candidats.getPremiereCandidatureAvecUAI().filter(candidat => 
-                candidat.UAIEtablissementorigine === lycee.numero_uai
-            ).length;
+            const details = getCandidatureDetails(lycee);
 
-            regions[region].count += candidatCount;
+            regions[region].details.total += details.total;
+            regions[region].details.generale += details.generale;
+            regions[region].details.sti2d += details.sti2d;
+            regions[region].details.autre += details.autre;
         });
 
         // Ajouter les clusters par région
         Object.keys(regions).forEach(region => {
             const data = regions[region];
-            if (data.count > 0) {
-                const marker = L.marker([data.latitude, data.longitude], { candidatCount: data.count })
+            if (data.details.total > 0) {
+                const marker = L.marker([data.latitude, data.longitude], { candidatCount: data.details.total })
                     .bindPopup(
                         `<b>${region}</b><br>` +
-                        `Nombre de candidatures: ${data.count}`
+                        `Nombre de candidatures: ${data.details.total}<br>` +
+                        `Générale: ${data.details.generale}<br>` +
+                        `STI2D: ${data.details.sti2d}<br>` +
+                        `Autre: ${data.details.autre}`
                     );
                 markerCluster.addLayer(marker);
             }
@@ -204,6 +229,7 @@ V.renderLycees = function() {
             .openOn(map);
     });
 };
+
 
 
 

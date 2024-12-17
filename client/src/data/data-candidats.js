@@ -27,7 +27,8 @@ Candidats.getPremiereCandidatureAvecUAI = function() {
                 UAIEtablissementorigine: premiereScolariteAvecUAI.UAIEtablissementorigine,
                 NomEtablissementOrigine: premiereScolariteAvecUAI.NomEtablissementOrigine,
                 CommuneEtablissementOrigine: premiereScolariteAvecUAI.CommuneEtablissementOrigineLibelle,
-                CodePostalCommune: premiereScolariteAvecUAI.CommuneEtablissementOrigineCodePostal
+                CodePostalCommune: premiereScolariteAvecUAI.CommuneEtablissementOrigineCodePostal,
+                diplome: candidat.Baccalaureat.SerieDiplomeCode,
             };
         }
 
@@ -38,6 +39,6 @@ Candidats.getPremiereCandidatureAvecUAI = function() {
 };
 
 
-console.log(Candidats.getPremiereCandidatureAvecUAI());
+
 
 export { Candidats };
