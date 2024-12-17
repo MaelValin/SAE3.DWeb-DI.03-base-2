@@ -3,6 +3,7 @@ import { Candidats } from "./../../data/data-candidats.js";
 import { Lycees } from "./../../data/data-lycees.js";
 
 
+
 let C = {};
 
 C.init = async function(){
@@ -104,7 +105,6 @@ V.renderLycees = function() {
                         scolarite.UAIEtablissementorigine === lycee.numero_uai && scolarite.AnneeScolaireCode === 0 && lycee.latitude !== '' && lycee.longitude !== ''
                     )
                 ).length;
-
                 L.marker([latitude, longitude])
                     .addTo(map)
                     .bindPopup(
