@@ -1,6 +1,7 @@
 
 import { Candidats } from "./../../data/data-candidats.js";
 import { Lycees } from "./../../data/data-lycees.js";
+import { Postal } from "./../../data/data-postal.js";
 
 import'leaflet.markercluster';
 
@@ -22,6 +23,7 @@ let V = {
 V.init = function(){
     
     V.renderLycees();
+    V.renderPostCandidature();
 }
 
 
@@ -230,11 +232,82 @@ V.renderLycees = function() {
     });
 };
 
+V.renderPostCandidature = function() {
+    
+
+
+    const markerCluster = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: false,
+        iconCreateFunction: function(cluster) {
+            const candidatCount = cluster.getAllChildMarkers().reduce((total, marker) => {
+                return total + (marker.options.candidatCount || 0);
+            }, 0);
+
+            return L.divIcon({
+                html: `<div style="background-color: rgba(255, 0, 0, 0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white;">${candidatCount}</div>`,
+                className: 'marker-cluster',
+                iconSize: L.point(40, 40)
+            });
+        }
+    });
+
+    // Ajout des candidats post-bac
+    Candidats.getCandidatsAvecDiplomeCode1ou2().forEach(async candidat => {
+        const postalCode = candidat.CodePostalCommune.substring(0, 2);
+        const postalData = Postal.getByPostalCode(postalCode);
+
+        if (postalData && postalData[0] && postalData[0]._geopoint) {
+            // Valider et traiter les coordonnées géographiques
+            if (typeof postalData[0]._geopoint === 'string') {
+                const coords = postalData[0]._geopoint.split(',');
+                const latitude = parseFloat(coords[0]);
+                const longitude = parseFloat(coords[1]);
+
+                if (!isNaN(latitude) && !isNaN(longitude)) {
+                    // Créer un marqueur personnalisé pour la ville principale de la région
+                    const customIcon = L.divIcon({
+                        html: `<div style="background-color: rgba(255, 0, 155, 0.9); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: white; border:solid 2px white;">1</div>`,
+                        className: 'custom-marker',
+                        iconSize: L.point(30, 30)
+                    });
+
+                    const marker = L.marker([latitude, longitude], {
+                        icon: customIcon,
+                        candidatCount: 1
+                    }).bindPopup(
+                        `<b>${candidat.candidatId}</b><br>` +
+                        `Sexe: ${candidat.sexe}<br>` +
+                        `Année Scolaire: ${candidat.anneeScolaire}<br>` +
+                        `Établissement: ${candidat.NomEtablissementOrigine}<br>` +
+                        `Commune: ${candidat.CommuneEtablissementOrigine}`
+                    );
+
+                    markerCluster.addLayer(marker);
+                } else {
+                    console.error('Les coordonnées extraites ne sont pas valides:', coords);
+                }
+            } else {
+                console.error('Format _geopoint invalide:', postalData[0]._geopoint);
+            }
+        }
+    });
+
+    // Ajouter les clusters à la carte
+    map.addLayer(markerCluster);
+};
 
 
 
 // Réaction au changement de zoom
-map.on('zoomend', V.renderLycees);
+map.on('zoomend', function() {
+    
+    V.renderLycees();
+    V.renderPostCandidature();
+    
+    
+});
+
 
 
 
