@@ -60,6 +60,7 @@ Candidats.getCandidatsAvecDiplomeCode1ou2 = function() {
                     CodePostalCommune: scolarite.CommuneEtablissementOrigineCodePostal,
                     diplome: candidat.Baccalaureat.SerieDiplomeCode,
                     stadediplome: candidat.Baccalaureat.TypeDiplomeLibelle,
+                    
                 };
             }
 

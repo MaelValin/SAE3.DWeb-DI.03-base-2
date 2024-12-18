@@ -10,7 +10,7 @@ let Lycees = {}
 Lycees.getAll = function(){ 
     return data;
 }
-
+/*
 Lycees.binarysearch = function(numero_uai){
     let min=0;
     let max=data.length-1;
@@ -28,7 +28,7 @@ Lycees.binarysearch = function(numero_uai){
         }
     }
     return null;
-}
+}*/
 
 
 Lycees.getAllValid = function() {

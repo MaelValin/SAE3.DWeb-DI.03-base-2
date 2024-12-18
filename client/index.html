@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
+    <script src="https://fastly.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
     <script type="module" src="src/main.js"></script>
     <script type="module" src="src/ui/map/map.js"></script>
     <title>SAE3.DWeb-DI.03 base code</title>
@@ -18,7 +19,7 @@
     <section id="header" ></section>
     <section class="grid grid-cols-[3fr,1fr] gap-8 w-[95%]">
         <div id="map" class=" h-144 w-full p-8 col-start-1 col-end-3 " style=" height: 36rem;  border-radius: 2%;"></div>
-        <div class=" bg-black w-40 col-start-3 col-end-4"></div>
+        <div class="bg-white col-start-3 col-end-4" id="barre" style="width: 25rem;"></div>
     </section>
     
     

@@ -14,7 +14,7 @@ Postal.getByPostalCode = function($postal) {
     return data.filter(item => item.code_postal == `${$postal}000`);
    
 }
-console.log(data);
+
 
 
 export { Postal };
