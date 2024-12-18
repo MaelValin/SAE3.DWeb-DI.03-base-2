@@ -2,7 +2,7 @@ import { Candidats } from "./../../data/data-candidats.js";
 import { Lycees } from "./../../data/data-lycees.js";
 import { Postal } from "./../../data/data-postal.js";
 
-import 'leaflet.markercluster';
+import './../../../node_modules/leaflet.markercluster/dist/leaflet.markercluster.js';
 
 let C = {};
 
