@@ -578,6 +578,14 @@ video {
   display: grid;
 }
 
+.h-\[36rem\] {
+  height: 36rem;
+}
+
+.w-\[25rem\] {
+  width: 25rem;
+}
+
 .w-\[95\%\] {
   width: 95%;
 }
@@ -600,6 +608,10 @@ video {
 
 .gap-8 {
   gap: 2rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
 }
 
 .bg-teal-700 {

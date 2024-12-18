@@ -158,8 +158,9 @@ V.renderBarre = async function () {
   seuilSlider.type = "range";
   seuilSlider.min = 0;
   seuilSlider.max = Math.max(...candidatsCounts);
-  seuilSlider.value = 3; // Valeur a modifier pour le seuil par défaut
-  document.body.appendChild(seuilSlider);
+  seuilSlider.value = 3; // Valeur a modifier pour le seuil initial
+  seuilSlider.style.width = "100%";
+  V.barre.appendChild(seuilSlider);
 
   seuilSlider.addEventListener("input", () => {
     let seuil = parseInt(seuilSlider.value);

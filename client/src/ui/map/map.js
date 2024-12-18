@@ -1,9 +1,8 @@
-
 import { Candidats } from "./../../data/data-candidats.js";
 import { Lycees } from "./../../data/data-lycees.js";
 import { Postal } from "./../../data/data-postal.js";
 
-import'leaflet.markercluster';
+import 'leaflet.markercluster';
 
 let C = {};
 
@@ -13,74 +12,82 @@ C.init = async function(){
     //console.log(Lycees.getAll());
 }
 
-
-
-
-let V = {
-    
-};
+let V = {};
 
 V.init = function(){
-    
     V.renderLycees();
     V.renderPostCandidature();
+    V.initSlider();
 }
 
-
-
-var map = L.map('map').setView([45.83,1.26], 13);
+var map = L.map('map').setView([45.83, 1.26], 13);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-//methode a utiliser
+let distanceVolDoiseau = function(lat_a, lon_a, lat_b, lon_b) {
+    let a = Math.PI / 180;
+    let lat1 = lat_a * a;
+    let lat2 = lat_b * a;
+    let lon1 = lon_a * a;
+    let lon2 = lon_b * a;
 
-/*var marker = L.marker([45.83,1.26]).addTo(map);
+    let t1 = Math.sin(lat1) * Math.sin(lat2);
+    let t2 = Math.cos(lat1) * Math.cos(lat2);
+    let t3 = Math.cos(lon1 - lon2);
+    let t4 = t2 * t3;
+    let t5 = t1 + t4;
+    let rad_dist = Math.atan(-t5 / Math.sqrt(-t5 * t5 + 1)) + 2 * Math.atan(1);
 
-var circle = L.circle([45.83,1.26], {
-    color: 'red',
-    fillColor: '#f03',
-    fillOpacity: 0.5,
-    radius: 500
-}).addTo(map);*/
-
-
-/*var polygon = L.polygon([
-    [45.85,1.22],
-    [45.87,1.26],
-    [45.83,1.29]
-]).addTo(map);*/
-
-
-/*marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-circle.bindPopup("I am a circle.");
-polygon.bindPopup("I am a polygon.");*/
-
-/*var popup = L.popup()
-    .setLatLng([45.83,1.26])
-    .setContent("I am a standalone popup.")
-    .openOn(map);
-
-    var popup = L.popup();*/
-
-
-
-/*    function onMapClick(e) {
-    popup
-        .setLatLng(e.latlng)
-        .setContent("You clicked the map at " + e.latlng.toString())
-        .openOn(map);
+    return (rad_dist * 3437.74677 * 1.1508) * 1.6093470878864446;
 }
 
-map.on('click', onMapClick);*/
+let radius = 50; // Default radius in km
 
-//je veux afficher les lycees sur la carte
-V.renderLycees = function() { 
+V.initSlider = function() {
+    let sliderContainer = document.createElement('div');
+    sliderContainer.id = 'sliderContainer';
+    sliderContainer.style.display = 'flex';
+    sliderContainer.style.gap = '10px';
+
+    let radiusLabel = document.createElement('label');
+    radiusLabel.for = 'radiusSlider';
+    radiusLabel.innerText = 'Radius: ';
+    radiusLabel.style.color = 'white';
+    radiusLabel.style.fontWeight = 'bold';
+
+    let slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 2;
+    slider.max = 800;
+    slider.value = radius;
+    slider.id = 'radiusSlider';
+    slider.style.width = '80%';
+    slider.oninput = function() {
+        radius = parseInt(this.value);
+        radiusValue.innerText = radius + ' km';
+        radiusValue.style.color = 'white';
+        V.renderLycees();
+        V.renderPostCandidature();
+    };
+
+    let radiusValue = document.createElement('span');
+    radiusValue.id = 'radiusValue';
+    radiusValue.innerText = radius + ' km';
+    radiusValue.style.color = 'white';
+    sliderContainer.appendChild(radiusLabel);
+    sliderContainer.appendChild(slider);
+    sliderContainer.appendChild(radiusValue);
+
+    let mapElement = document.getElementById('maps');
+    mapElement.appendChild(sliderContainer);
+}
+
+V.renderLycees = function() {
     const zoomLevel = map.getZoom();
 
-    // Supprimer les marqueurs existants
     map.eachLayer(layer => {
         if (layer instanceof L.MarkerClusterGroup || layer instanceof L.Marker) {
             map.removeLayer(layer);
@@ -91,9 +98,10 @@ V.renderLycees = function() {
         showCoverageOnHover: false,
         zoomToBoundsOnClick: false,
         iconCreateFunction: function(cluster) {
-            const candidatCount = cluster.getAllChildMarkers().reduce((total, marker) => {
-                return total + (marker.options.candidatCount || 0);
-            }, 0);
+            let candidatCount = 0;
+            cluster.getAllChildMarkers().forEach(marker => {
+                candidatCount += marker.options.candidatCount || 0;
+            });
 
             return L.divIcon({
                 html: `<div style="background-color: rgba(0, 123, 255, 0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white;">${candidatCount}</div>`,
@@ -110,57 +118,70 @@ V.renderLycees = function() {
         
         const details = {
             total: candidatures.length,
-            generale: candidatures.filter(c => c.diplome=== 'Générale').length,
-            sti2d: candidatures.filter(c => c.diplome=== 'STI2D').length,
-            autre: candidatures.filter(c => c.diplome!== 'Générale' && c.diplome!== 'STI2D').length
+            generale: 0,
+            sti2d: 0,
+            autre: 0
         };
-       
+
+        candidatures.forEach(c => {
+            if (c.diplome === 'Générale') {
+                details.generale++;
+            } else if (c.diplome === 'STI2D') {
+                details.sti2d++;
+            } else {
+                details.autre++;
+            }
+        });
 
         return details;
     };
 
+    const limogesLat = 45.83;
+    const limogesLon = 1.26;
+
     if (zoomLevel >= 12) {
-        // Marqueurs individuels par lycée
         Lycees.getAllValid().forEach(lycee => {
             const latitude = parseFloat(lycee.latitude);
             const longitude = parseFloat(lycee.longitude);
 
-            const details = getCandidatureDetails(lycee);
+            if (distanceVolDoiseau(limogesLat, limogesLon, latitude, longitude) <= radius) {
+                const details = getCandidatureDetails(lycee);
 
-            if (details.total > 0) {
-                const marker = L.marker([latitude, longitude], { candidatCount: details.total })
-                    .bindPopup(
-                        `<b>${lycee.appellation_officielle}</b><br>` +
-                        `Nombre de candidatures: ${details.total}<br>` +
-                        `Générale: ${details.generale}<br>` +
-                        `STI2D: ${details.sti2d}<br>` +
-                        `Autre: ${details.autre}`
-                    );
-                map.addLayer(marker);
+                if (details.total > 0) {
+                    const marker = L.marker([latitude, longitude], { candidatCount: details.total })
+                        .bindPopup(
+                            `<b>${lycee.appellation_officielle}</b><br>` +
+                            `Nombre de candidatures: ${details.total}<br>` +
+                            `Générale: ${details.generale}<br>` +
+                            `STI2D: ${details.sti2d}<br>` +
+                            `Autre: ${details.autre}`
+                        );
+                    map.addLayer(marker);
+                }
             }
         });
     } else if (zoomLevel >= 9) {
         const villes = {};
 
-        // Regrouper les données par ville
         Lycees.getAllValid().forEach(lycee => {
             const latitude = parseFloat(lycee.latitude);
             const longitude = parseFloat(lycee.longitude);
             const ville = lycee.libelle_commune;
 
-            if (!villes[ville]) {
-                villes[ville] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
+            if (distanceVolDoiseau(limogesLat, limogesLon, latitude, longitude) <= radius) {
+                if (!villes[ville]) {
+                    villes[ville] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
+                }
+
+                const details = getCandidatureDetails(lycee);
+
+                villes[ville].details.total += details.total;
+                villes[ville].details.generale += details.generale;
+                villes[ville].details.sti2d += details.sti2d;
+                villes[ville].details.autre += details.autre;
             }
-
-            const details = getCandidatureDetails(lycee);
-
-            villes[ville].details.total += details.total;
-            villes[ville].details.generale += details.generale;
-            villes[ville].details.sti2d += details.sti2d;
-            villes[ville].details.autre += details.autre;
         });
 
-        // Ajouter les clusters par ville
         Object.keys(villes).forEach(ville => {
             const data = villes[ville];
             if (data.details.total > 0) {
@@ -178,25 +199,25 @@ V.renderLycees = function() {
     } else {
         const regions = {};
 
-        // Regrouper les données par région
         Lycees.getAllValid().forEach(lycee => {
             const latitude = parseFloat(lycee.latitude);
             const longitude = parseFloat(lycee.longitude);
             const region = lycee.libelle_departement;
 
-            if (!regions[region]) {
-                regions[region] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
+            if (distanceVolDoiseau(limogesLat, limogesLon, latitude, longitude) <= radius) {
+                if (!regions[region]) {
+                    regions[region] = { latitude, longitude, details: { total: 0, generale: 0, sti2d: 0, autre: 0 } };
+                }
+
+                const details = getCandidatureDetails(lycee);
+
+                regions[region].details.total += details.total;
+                regions[region].details.generale += details.generale;
+                regions[region].details.sti2d += details.sti2d;
+                regions[region].details.autre += details.autre;
             }
-
-            const details = getCandidatureDetails(lycee);
-
-            regions[region].details.total += details.total;
-            regions[region].details.generale += details.generale;
-            regions[region].details.sti2d += details.sti2d;
-            regions[region].details.autre += details.autre;
         });
 
-        // Ajouter les clusters par région
         Object.keys(regions).forEach(region => {
             const data = regions[region];
             if (data.details.total > 0) {
@@ -213,15 +234,14 @@ V.renderLycees = function() {
         });
     }
 
-    // Ajouter les clusters à la carte
     map.addLayer(markerCluster);
 
-    // Gérer les clics sur les clusters pour afficher un popup
     markerCluster.on('clusterclick', function(event) {
         const cluster = event.layer;
-        const totalCandidats = cluster.getAllChildMarkers().reduce((total, marker) => {
-            return total + (marker.options.candidatCount || 0);
-        }, 0);
+        let totalCandidats = 0;
+        cluster.getAllChildMarkers().forEach(marker => {
+            totalCandidats += marker.options.candidatCount || 0;
+        });
 
         L.popup()
             .setLatLng(cluster.getLatLng())
@@ -233,16 +253,14 @@ V.renderLycees = function() {
 };
 
 V.renderPostCandidature = function() {
-    
-
-
     const markerCluster = L.markerClusterGroup({
         showCoverageOnHover: false,
         zoomToBoundsOnClick: false,
         iconCreateFunction: function(cluster) {
-            const candidatCount = cluster.getAllChildMarkers().reduce((total, marker) => {
-                return total + (marker.options.candidatCount || 0);
-            }, 0);
+            let candidatCount = 0;
+            cluster.getAllChildMarkers().forEach(marker => {
+                candidatCount += marker.options.candidatCount || 0;
+            });
 
             return L.divIcon({
                 html: `<div style="background-color: rgba(255, 0, 0, 0.9); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: white;">${candidatCount}</div>`,
@@ -252,38 +270,40 @@ V.renderPostCandidature = function() {
         }
     });
 
-    // Ajout des candidats post-bac
+    const limogesLat = 45.83;
+    const limogesLon = 1.26;
+
     Candidats.getCandidatsAvecDiplomeCode1ou2().forEach(async candidat => {
         const postalCode = candidat.CodePostalCommune.substring(0, 2);
         const postalData = Postal.getByPostalCode(postalCode);
 
         if (postalData && postalData[0] && postalData[0]._geopoint) {
-            // Valider et traiter les coordonnées géographiques
             if (typeof postalData[0]._geopoint === 'string') {
                 const coords = postalData[0]._geopoint.split(',');
                 const latitude = parseFloat(coords[0]);
                 const longitude = parseFloat(coords[1]);
 
                 if (!isNaN(latitude) && !isNaN(longitude)) {
-                    // Créer un marqueur personnalisé pour la ville principale de la région
-                    const customIcon = L.divIcon({
-                        html: `<div style="background-color: rgba(255, 0, 155, 0.9); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: white; border:solid 2px white;">1</div>`,
-                        className: 'custom-marker',
-                        iconSize: L.point(30, 30)
-                    });
+                    if (distanceVolDoiseau(limogesLat, limogesLon, latitude, longitude) <= radius) {
+                        const customIcon = L.divIcon({
+                            html: `<div style="background-color: rgba(255, 0, 155, 0.9); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: white; border:solid 2px white;">1</div>`,
+                            className: 'custom-marker',
+                            iconSize: L.point(30, 30)
+                        });
 
-                    const marker = L.marker([latitude, longitude], {
-                        icon: customIcon,
-                        candidatCount: 1
-                    }).bindPopup(
-                        `<b>${candidat.candidatId}</b><br>` +
-                        `Sexe: ${candidat.sexe}<br>` +
-                        `Année Scolaire: ${candidat.anneeScolaire}<br>` +
-                        `Établissement: ${candidat.NomEtablissementOrigine}<br>` +
-                        `Commune: ${candidat.CommuneEtablissementOrigine}`
-                    );
+                        const marker = L.marker([latitude, longitude], {
+                            icon: customIcon,
+                            candidatCount: 1
+                        }).bindPopup(
+                            `<b>${candidat.candidatId}</b><br>` +
+                            `Sexe: ${candidat.sexe}<br>` +
+                            `Année Scolaire: ${candidat.anneeScolaire}<br>` +
+                            `Établissement: ${candidat.NomEtablissementOrigine}<br>` +
+                            `Commune: ${candidat.CommuneEtablissementOrigine}`
+                        );
 
-                    markerCluster.addLayer(marker);
+                        markerCluster.addLayer(marker);
+                    }
                 } else {
                     console.error('Les coordonnées extraites ne sont pas valides:', coords);
                 }
@@ -293,26 +313,12 @@ V.renderPostCandidature = function() {
         }
     });
 
-    // Ajouter les clusters à la carte
     map.addLayer(markerCluster);
 };
 
-
-
-// Réaction au changement de zoom
 map.on('zoomend', function() {
-    
     V.renderLycees();
     V.renderPostCandidature();
-    
-    
 });
-
-
-
-
-
-
-
 
 C.init();
