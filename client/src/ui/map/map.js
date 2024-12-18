@@ -26,7 +26,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
-
+/*
 let distanceVolDoiseau = function(lat_a, lon_a, lat_b, lon_b) {
     let a = Math.PI / 180;
     let lat1 = lat_a * a;
@@ -61,7 +61,7 @@ V.initSlider = function() {
     let slider = document.createElement('input');
     slider.type = 'range';
     slider.min = 2;
-    slider.max = 800;
+    slider.max = 650;
     slider.value = radius;
     slider.id = 'radiusSlider';
     slider.style.width = '80%';
@@ -83,7 +83,7 @@ V.initSlider = function() {
 
     let mapElement = document.getElementById('maps');
     mapElement.appendChild(sliderContainer);
-}
+}*/
 
 V.renderLycees = function() {
     const zoomLevel = map.getZoom();

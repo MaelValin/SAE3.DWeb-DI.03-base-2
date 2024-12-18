@@ -156,7 +156,7 @@ V.renderBarre = async function () {
   // Ajouter un slider pour définir le seuil de candidatures
   let seuilSlider = document.createElement("input");
   seuilSlider.type = "range";
-  seuilSlider.min = 0;
+  seuilSlider.min = 1;
   seuilSlider.max = Math.max(...candidatsCounts);
   seuilSlider.value = 3; // Valeur a modifier pour le seuil initial
   seuilSlider.style.width = "100%";
@@ -225,5 +225,7 @@ V.renderBarre = async function () {
   // Initialiser la barre avec le seuil par défaut
   seuilSlider.dispatchEvent(new Event("input"));
 };
+
+
 
 C.init();
