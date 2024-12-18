@@ -153,13 +153,76 @@ V.renderBarre = async function () {
     (codeDepartement) => candidatsAutreParDepartement[codeDepartement] || 0
   );
 
-  Barre.updateData(
-    sortedDepartements,
-    candidatsCounts,
-    candidatsGeneraleCounts,
-    candidatsSTI2DCounts,
-    candidatsAutreCounts
-  );
+  // Ajouter un slider pour définir le seuil de candidatures
+  let seuilSlider = document.createElement("input");
+  seuilSlider.type = "range";
+  seuilSlider.min = 0;
+  seuilSlider.max = Math.max(...candidatsCounts);
+  seuilSlider.value = 3; // Valeur a modifier pour le seuil par défaut
+  document.body.appendChild(seuilSlider);
+
+  seuilSlider.addEventListener("input", () => {
+    let seuil = parseInt(seuilSlider.value);
+    let autresDepartementsCount = 0;
+    let autresGeneraleCount = 0;
+    let autresSTI2DCount = 0;
+    let autresAutreCount = 0;
+
+    let filteredDepartements = sortedCandidatsParDepartement.filter(
+      (codeDepartement) => {
+        let count = candidatsParDepartement[codeDepartement] || 0;
+        if (count <= seuil) {
+          autresDepartementsCount += count;
+          autresGeneraleCount +=
+            candidatsGeneraleParDepartement[codeDepartement] || 0;
+          autresSTI2DCount +=
+            candidatsSTI2DParDepartement[codeDepartement] || 0;
+          autresAutreCount +=
+            candidatsAutreParDepartement[codeDepartement] || 0;
+          return false;
+        }
+        return true;
+      }
+    );
+
+    let filteredDepartementsNames = filteredDepartements.map(
+      (codeDepartement) => departementsMap[codeDepartement]
+    );
+
+    let filteredCandidatsCounts = filteredDepartements.map(
+      (codeDepartement) => candidatsParDepartement[codeDepartement] || 0
+    );
+
+    let filteredGeneraleCounts = filteredDepartements.map(
+      (codeDepartement) => candidatsGeneraleParDepartement[codeDepartement] || 0
+    );
+
+    let filteredSTI2DCounts = filteredDepartements.map(
+      (codeDepartement) => candidatsSTI2DParDepartement[codeDepartement] || 0
+    );
+
+    let filteredAutreCounts = filteredDepartements.map(
+      (codeDepartement) => candidatsAutreParDepartement[codeDepartement] || 0
+    );
+
+    // Ajouter les "Autres départements" aux données filtrées
+    filteredDepartementsNames.push("Autres départements");
+    filteredCandidatsCounts.push(autresDepartementsCount);
+    filteredGeneraleCounts.push(autresGeneraleCount);
+    filteredSTI2DCounts.push(autresSTI2DCount);
+    filteredAutreCounts.push(autresAutreCount);
+
+    Barre.updateData(
+      filteredDepartementsNames,
+      filteredCandidatsCounts,
+      filteredGeneraleCounts,
+      filteredSTI2DCounts,
+      filteredAutreCounts
+    );
+  });
+
+  // Initialiser la barre avec le seuil par défaut
+  seuilSlider.dispatchEvent(new Event("input"));
 };
 
 C.init();

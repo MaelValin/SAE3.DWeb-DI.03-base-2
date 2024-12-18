@@ -101,24 +101,36 @@ export const Barre = {
             console.error("Erreur : 'option' n'est pas encore initialisé.");
             return;
         }
-    
+        
         // Vérifiez que 'series' est correctement défini
         if (!this.option.series || !this.option.series[0]) {
             console.error("Erreur : 'series' n'est pas correctement définie dans l'option.");
             return;
         }
-    
-        // Mettre à jour les données dans les éléments de 'series'
-                this.option.series[0].data = postbac;
-                this.option.series[1].data = general;
-                this.option.series[2].data = sti2d;
-                this.option.series[3].data = autres;
-           
-    
-        // Mettre à jour les données de yAxis si nécessaire
-        if (newYAxisData) {
-            this.option.yAxis.data = newYAxisData;
-        }
+        
+        // Calculer le total des candidatures pour chaque jour
+        const totalCandidatures = postbac.map((_, index) => {
+            return postbac[index] + general[index] + sti2d[index] + autres[index];
+        });
+
+        // Créer un tableau d'objets pour trier les jours en fonction du total des candidatures
+        const sortedData = newYAxisData.map((day, index) => {
+            return {
+            day: day,
+            total: totalCandidatures[index],
+            postbac: postbac[index],
+            general: general[index],
+            sti2d: sti2d[index],
+            autres: autres[index]
+            };
+        }).sort((a, b) =>  b.total- a.total );
+
+        // Mettre à jour les données triées
+        this.option.yAxis.data = sortedData.map(item => item.day);
+        this.option.series[0].data = sortedData.map(item => item.postbac);
+        this.option.series[1].data = sortedData.map(item => item.general);
+        this.option.series[2].data = sortedData.map(item => item.sti2d);
+        this.option.series[3].data = sortedData.map(item => item.autres);
         // Réappliquer l'option mise à jour
         this.chart.setOption(this.option, true);  // Le deuxième argument 'true' force une mise à jour complète de l'option
     
