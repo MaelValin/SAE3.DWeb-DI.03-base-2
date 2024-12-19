@@ -72,4 +72,8 @@ Candidats.getCandidatsAvecDiplomeCode1ou2 = function() {
 
 
 
+
+
+
+
 export { Candidats };

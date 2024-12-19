@@ -226,6 +226,4 @@ V.renderBarre = async function () {
   seuilSlider.dispatchEvent(new Event("input"));
 };
 
-
-
 C.init();

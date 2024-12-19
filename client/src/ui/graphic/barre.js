@@ -95,8 +95,10 @@ export const Barre = {
         
     },
 
-    updateData: function(newYAxisData,postbac, general, sti2d, autres) {
+    updateData: function(newYAxisData, postbac, general, sti2d, autres) {
         // Vérifiez que 'option' est bien initialisé
+
+        
         if (!this.option) {
             console.error("Erreur : 'option' n'est pas encore initialisé.");
             return;
@@ -107,35 +109,48 @@ export const Barre = {
             console.error("Erreur : 'series' n'est pas correctement définie dans l'option.");
             return;
         }
-        
+    
+        // Assurez-vous que toutes les données sont des tableaux valides
+        if (!Array.isArray(postbac) || !Array.isArray(general) || !Array.isArray(sti2d) || !Array.isArray(autres)) {
+            console.error("Erreur : Les données fournies ne sont pas des tableaux valides.");
+            return;
+        }
+    
+        if (!Array.isArray(newYAxisData)) {
+            console.error("Erreur : 'newYAxisData' n'est pas un tableau valide.");
+            return;
+        }
+    
         // Calculer le total des candidatures pour chaque jour
         const totalCandidatures = postbac.map((_, index) => {
-            return postbac[index] + general[index] + sti2d[index] + autres[index];
+            return (postbac[index] || 0) + (general[index] || 0) + (sti2d[index] || 0) + (autres[index] || 0);
         });
-
+    
         // Créer un tableau d'objets pour trier les jours en fonction du total des candidatures
         const sortedData = newYAxisData.map((day, index) => {
             return {
-            day: day,
-            total: totalCandidatures[index],
-            postbac: postbac[index],
-            general: general[index],
-            sti2d: sti2d[index],
-            autres: autres[index]
+                day: day,
+                total: totalCandidatures[index],
+                postbac: postbac[index] || 0,
+                general: general[index] || 0,
+                sti2d: sti2d[index] || 0,
+                autres: autres[index] || 0
             };
-        }).sort((a, b) =>  b.total- a.total );
-
+        }).sort((a, b) => b.total - a.total);
+    
         // Mettre à jour les données triées
         this.option.yAxis.data = sortedData.map(item => item.day);
         this.option.series[0].data = sortedData.map(item => item.postbac);
         this.option.series[1].data = sortedData.map(item => item.general);
         this.option.series[2].data = sortedData.map(item => item.sti2d);
         this.option.series[3].data = sortedData.map(item => item.autres);
+    
         // Réappliquer l'option mise à jour
-        this.chart.setOption(this.option, true);  // Le deuxième argument 'true' force une mise à jour complète de l'option
+        this.chart.setOption(this.option, true);
     
         // Forcer un rafraîchissement du graphique après la mise à jour des données
         this.chart.resize();
-    },
+    }
+    
 };
 

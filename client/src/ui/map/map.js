@@ -26,7 +26,6 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
-
 let distanceVolDoiseau = function(lat_a, lon_a, lat_b, lon_b) {
     let a = Math.PI / 180;
     let lat1 = lat_a * a;
@@ -71,6 +70,7 @@ V.initSlider = function() {
         radiusValue.style.color = 'white';
         V.renderLycees();
         V.renderPostCandidature();
+       
     };
 
     let radiusValue = document.createElement('span');

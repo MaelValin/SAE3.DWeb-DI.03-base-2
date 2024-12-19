@@ -35,4 +35,7 @@ Lycees.getAllValid = function() {
     return data.filter(lycee => lycee.latitude !== '' && lycee.longitude !== '');
 }
 
+
+
+
 export { Lycees };
