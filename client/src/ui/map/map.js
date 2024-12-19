@@ -85,6 +85,8 @@ V.initSlider = function() {
     mapElement.appendChild(sliderContainer);
 }*/
 
+let radiusCircle;
+
 V.renderLycees = function() {
     const zoomLevel = map.getZoom();
 
@@ -93,7 +95,18 @@ V.renderLycees = function() {
             map.removeLayer(layer);
         }
     });
+    
+if (radiusCircle) {
+        map.removeLayer(radiusCircle);
+    }
 
+    radiusCircle = L.circle([45.83, 1.26], {
+        color: 'blue',
+        fillColor: '#30f',
+        fillOpacity: 0.1,
+        radius: radius * 1000
+    }).addTo(map);
+    
     const markerCluster = L.markerClusterGroup({
         showCoverageOnHover: false,
         zoomToBoundsOnClick: false,
