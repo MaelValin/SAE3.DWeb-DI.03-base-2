@@ -85,14 +85,27 @@ V.initSlider = function() {
     mapElement.appendChild(sliderContainer);
 }
 
+let radiusCircle;
+
 V.renderLycees = function() {
     const zoomLevel = map.getZoom();
 
     map.eachLayer(layer => {
-        if (layer instanceof L.MarkerClusterGroup || layer instanceof L.Marker) {
+        if (layer instanceof L.MarkerClusterGroup || layer instanceof L.Marker || layer instanceof L.Circle) {
             map.removeLayer(layer);
         }
     });
+
+    if (radiusCircle) {
+        map.removeLayer(radiusCircle);
+    }
+
+    radiusCircle = L.circle([45.83, 1.26], {
+        color: 'blue',
+        fillColor: '#30f',
+        fillOpacity: 0.1,
+        radius: radius * 1000
+    }).addTo(map);
 
     const markerCluster = L.markerClusterGroup({
         showCoverageOnHover: false,
