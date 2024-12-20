@@ -160,6 +160,7 @@ V.renderBarre = async function () {
   seuilSlider.max = Math.max(...candidatsCounts);
   seuilSlider.value = 3; // Valeur a modifier pour le seuil initial
   seuilSlider.style.width = "100%";
+ seuilSlider.setAttribute("aria-label", "Seuil de candidatures");
   V.barre.appendChild(seuilSlider);
 
   seuilSlider.addEventListener("input", () => {
