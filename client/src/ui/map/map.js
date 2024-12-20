@@ -64,6 +64,7 @@ V.initSlider = function() {
     slider.value = radius;
     slider.id = 'radiusSlider';
     slider.style.width = '80%';
+    slider.setAttribute('aria-label', 'Radius distance');
     slider.oninput = function() {
         radius = parseInt(this.value);
         radiusValue.innerText = radius + ' km';
